@@ -1,20 +1,29 @@
 # EGS Quiz Arena
 
-A static scoreboard for the EGS annual inter-school quiz. It runs directly in a modern browser and does not need a build step or a backend for a single laptop event.
+Static live scoreboard for the EGS annual inter-school quiz. The website runs without a build step. For a single device it saves scores in that browser. To share a scoreboard across devices, connect a dedicated Supabase project (steps below).
 
-## Run locally
+## Cross-device setup (one-time)
 
-Open `index.html` in a modern browser. Quiz setup, scores, and the selected display palette are saved in that browser on that device.
+1. Create a **new, dedicated Supabase project** for this quiz. Do not reuse a project that stores unrelated data. Save the database password privately; the site does not need it.
+2. In Supabase **Project Settings → API**, copy the **Project URL** and **publishable key**. A publishable key is designed for use in a browser; never use or share a secret/service-role key.
+3. In Supabase **SQL Editor**, run `supabase/schema.sql` from this repository. It creates the single scoreboard row, allows public read-only viewing, allows signed-in users to write, and enables live updates.
+4. In **Authentication → Users**, create the judge account. Keep public sign-ups disabled so only accounts you explicitly add can edit. Use a strong password and share it only with the judge.
+5. Put the Project URL and publishable key in `supabase-config.js` (the empty fields are at the top of the file). These two values are safe to publish when the database policies above are installed.
+6. Host the `outputs` folder using GitHub Pages, Netlify, or Cloudflare Pages. The site must be opened through its hosted HTTPS address; opening `index.html` as a local file cannot sync across devices.
+7. Open the hosted link on the projector and other devices. Viewers see live scores; the judge signs in to award marks or edit setup. All devices need internet access.
 
-## Deploy with GitHub Pages
+For the quickest workflow, after step 1 send the project URL (or project reference) here, plus the GitHub repository URL you want to use. Do not send the database password or any secret/service-role key. I can then complete the schema, public-key configuration, and repository push. If you prefer, you can follow steps 2–5 yourself and send only the URL and publishable key.
 
-1. Create an empty GitHub repository and push this repository's `main` branch.
-2. In the repository, open **Settings → Pages**.
-3. Choose **Deploy from a branch**, select `main` and `/ (root)`, then save.
-4. GitHub Pages will publish `index.html` and the logo images in `assets/`.
+## Local preview
 
-The page is static, so GitHub Pages, Netlify, or Cloudflare Pages can host it without a server or database.
+Open `index.html` in a modern browser. With blank Supabase settings, data is saved on that device only.
 
-## When Supabase is useful
+## Deployment through GitHub Pages
 
-Supabase is not needed for a quiz scored on one laptop, including when that laptop's display is duplicated to a projector. The scores are stored in that browser's local storage. Add a shared database only if multiple devices need to see and update the same live scores, or if results must sync across devices and sessions.
+Push the contents of this folder to a GitHub repository. In that repository, open **Settings → Pages**, select **Deploy from a branch**, choose `main` and `/(root)`, then save. GitHub Pages will publish the site and assets.
+
+## Notes
+
+- The judge should be the only authenticated account in this dedicated project. Every signed-in account can edit the scoreboard by design.
+- Public viewers can read the scoreboard and team logos. Do not enter private personal information.
+- Current synchronization stores the full scoreboard in one JSON row and is designed for the quiz's small number of teams and transactions.
